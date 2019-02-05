@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css">
+    <style>
+        #overlay{
+            position:fixed;
+            top:0;
+            bottom:0;
+            left:0;
+            right:0;
+            z-index: 2;
+            background: rgba(0,0,0,0.6);
+        }
+        #overlay img{
+            position:absolute;
+            width:200px;
+            top:50%;
+            left:50%;
+            transform: translate(-50%, -50%);
+        }
+    </style>
+    <title>Entrainement</title>
+</head>
+<body>
+    <div class="container-fluid">
+        <h1 class="text-center">Api de test</h1>
+        <p>Documentation : </p>
+        <p>Cette API permet de recuperer quelques info sur les profession jouables dans Guild Wars 2. Il vous suffit suffit de pointer vers le fichier apiClass.php en envoyant en donée POST la profession voulue.<br>Les classes acceptées sont strictement celles la : guerrier, guardien, revenant, rodeur, voleur, ingenieur, elementaliste, envouteur, necromant.</p>
+        <p>Faites un essai : </p>
+        <form action="apiClass.php" method="POST">
+            <select name="profession">
+                <option selected>Choisisser une profession</option>
+                <option value="guerrier">guerrier</option>
+                <option value="guardien">guardien</option>
+                <option value="revenant">revenant</option>
+                <option value="rodeur">rodeur</option>
+                <option value="ingenieur">ingenieur</option>
+                <option value="voleur">voleur</option>
+                <option value="elementaliste">elementaliste</option>
+                <option value="envouteur">envouteur</option>
+                <option value="necromant">necromant</option>
+            </select>
+            <input type="submit" value="valider">
+        </form>
+        <div class="display"></div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js"></script>
+    <script>
+        $(document).ready(function(){
+            $('form').submit(function(e){
+                e.preventDefault();
+                var form = $(this);
+                $.ajax({
+                    url: form.attr('action'),
+                    method: form.attr('method'),
+                    dataType: 'json',
+                    timeout: 4000,
+                    data: form.serialize(),
+                    success: function(data){
+                        var str = '<p>profession : ' + data.p_name + '<p><p>type d\'armure : ' + data.p_armor + '</p><p>Spécialisations : ';
+                        $(data.specialisations_name).each(function(index, element){
+                            if (index != 0){
+                                str = str + ' / ' + element;
+                            } else {
+                                str = str + element;
+                            }
+                        });
+                        str = str + '</p><p>Armes : ';
+                        $(data.weapons_name).each(function(index, element){
+                            if (index != 0){
+                                str = str + ' / ' + element;
+                            } else {
+                                str = str + element;
+                            }
+                        });
+                        str = str + '</p>';
+                        $('.display').html(str);
+                    },
+                    error: function(){
+                        alert('echec lors du traitement des données.');
+                    },
+                    beforeSend: function(){
+                        setOverlay();
+                    },
+                    complete: function(){
+                        removeOverlay();
+                    }
+                });
+            });
+            function setOverlay(){
+                $('body').css('overflow', 'hidden');
+                $('body').prepend('<div id="overlay"><img src="https://loading.io/spinners/square/index.svg" class="zoom3"></img></div>');
+            }
+            function removeOverlay(){
+                $('body').css('overflow', 'visible');
+                $('#overlay').remove();
+            }
+        });
+    </script>
+</body>
+</html>
